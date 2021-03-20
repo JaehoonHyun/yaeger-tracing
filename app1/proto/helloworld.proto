@@ -1,0 +1,47 @@
+// grpc
+
+// $ cd src/
+
+// $ protoc -I helloworld/ helloworld/helloworld.proto
+// --go_out=plugins=grpc:helloworld
+
+//
+
+syntax = "proto3";
+package helloworld;
+
+service Greeter {
+
+  rpc OnMatching(Empty) returns (HelloReply) {
+
+  }
+
+  rpc OnMatching2(Empty) returns (HelloReply) {
+
+  }
+
+  rpc OnMatching3(Empty) returns (HelloReply) {
+
+  }
+
+
+  // Client 쪽에 tx stream이 생겨서 계속 send 할 수 있다. 서버는 다 받으면
+  // 원래는 다 있지만 grpc가 패턴화 시킨듯?
+  // send를 한번만 한다.
+  rpc ClientStreamHello(stream HelloRequest) returns (HelloReply) {
+  }
+
+  // Server 쪽에 tx stream이 생겨서 계속 send 할 수 있다.
+  // 원래는 다 있지만 grpc가 패턴화 시킨듯?
+  // 클라이언트는 다 받으면 send를 한번만 한다.
+  rpc ServerStreamHello(HelloRequest) returns (stream HelloReply) {
+  }
+
+  //둘 다 stream이 생겨서 계속 send 할 수 있다.
+  rpc ServerClientStreamHello(stream HelloRequest) returns (stream HelloReply) {
+  }
+}
+
+message Empty { }
+message HelloRequest { string name = 1; }
+message HelloReply { string message = 1; }

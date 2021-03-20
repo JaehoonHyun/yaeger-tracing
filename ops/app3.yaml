@@ -1,0 +1,47 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: app3
+  namespace: jaeger
+  labels:
+    app: app3
+spec:
+  ports:
+  - name: grpc
+    port: 20053
+  selector:
+    app: app3 # it is a crd of DediServer. Pod has this label 
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app3
+  namespace: jaeger
+  labels:
+    app: app3
+spec:
+  revisionHistoryLimit: 0 #NOTE: argocd
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app3
+  template:
+    metadata:
+      labels:
+        app: app3
+    spec:
+      containers:
+      - name: app3
+        image: rival0605/jaeger:app3
+        imagePullPolicy: Always
+        command: ["/main"]
+        args: ["-port=20053", "-endpointApp1=app1:20051", "-endpointApp2=app2:20053", "-endpointApp3=app3:20053",]
+        env:
+        - name: JAEGER_SERVICE_NAME
+          value: app3
+        - name: JAEGER_AGENT_HOST
+          value: simplest-agent  # simplest-agent # 사이드카 패턴이라면 localhost로 하고 agent를 추가한다. 
+        - name: JAEGER_AGENT_PORT
+          value: "6831"
